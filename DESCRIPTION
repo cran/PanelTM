@@ -1,0 +1,19 @@
+Package: PanelTM
+Type: Package
+Title: Two- And Three-Way Dynamic Panel Threshold Regression Model for
+        Change Point Detection
+Version: 1.0
+Authors@R: c(person("Selene", "Perazzini", role = c("aut"), email = "selene.perazzini@alumni.imtlucca.it"),
+             person("F. Marta L.", "Di Lascio", role = c("aut","cre"), email = "marta.dilascio@unibz.it")
+	    )
+Maintainer: F. Marta L. Di Lascio <marta.dilascio@unibz.it>
+Description: Estimation of two- and three-way dynamic panel threshold regression models (Di Lascio and Perazzini (2024) <https://repec.unibz.it/bemps104.pdf>; Di Lascio and Perazzini (2022, ISBN:978-88-9193-231-0); Seo and Shin (2016) <doi:10.1016/j.jeconom.2016.03.005>) through the generalized method of moments based on the first difference transformation and the use of instrumental variables. The models can be used to find a change point detection in the time series. In addition, random number generation is also implemented.
+License: GPL (>= 2)
+Depends: R (>= 4.3.0), methods, stats, pracma
+Imports:
+NeedsCompilation: no
+Packaged: 2024-04-20 13:37:37 UTC; FDiLascio
+Author: Selene Perazzini [aut],
+  F. Marta L. Di Lascio [aut, cre]
+Repository: CRAN
+Date/Publication: 2024-04-22 18:42:42 UTC
