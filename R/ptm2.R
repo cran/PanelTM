@@ -268,7 +268,7 @@ ptm2<-function(Y, TV=NULL, Xendo=NULL, Xexo=NULL, IV=NULL, trimrate=0.4, ngrid=1
 		Gr = Gr/(dimN*hband)
 		G <- cbind(Gd, Gr)
 		mattoinv<- t(G)%*%omegahat%*%G
-		covmat<-pinv(mattoinv)/dimN
+		covmat<-matrix_inversion(mattoinv)/dimN
 
 	}
 	#BOOTSTRAP
@@ -290,9 +290,12 @@ ptm2<-function(Y, TV=NULL, Xendo=NULL, Xexo=NULL, IV=NULL, trimrate=0.4, ngrid=1
 			waldrec <- matrix(0, nrow=B, ncol=1) # To save sup-Walds
 			# Bootstrap sup-Wald stat.
 			for (bb2 in 1:B) {
-				supwaldb <- supwaldfb(Zmatb, xtemp1b, xtemp2b, xtemp3b, qtemp1b,
-					 qtemp2b, epcollect2, Wn2, covwaldrec, GridTh, ngrid, dimN)
-				waldrec[bb2] <- supwaldb
+				tryCatch(
+					{supwaldb <-supwaldfb(Zmatb, xtemp1b, xtemp2b, xtemp3b, qtemp1b,
+						qtemp2b, epcollect2, Wn2, covwaldrec, GridTh, ngrid, dimN)
+					waldrec[bb2] <- supwaldb},
+    				error = function(e) structure(NA_real_, fail_msg = conditionMessage(e))
+  				)
 			}
 			bootsp <- sum(1*(waldrec > supwaldori))/B
 			resboots <- list(method="parametric bootstrap-based linearity test",B=B,p.val= bootsp)
@@ -311,9 +314,12 @@ ptm2<-function(Y, TV=NULL, Xendo=NULL, Xexo=NULL, IV=NULL, trimrate=0.4, ngrid=1
 			waldrec <- matrix(0, nrow=B, ncol=1) # To save sup-Wald*s
 			# Bootstrap sup-Wald stat.
 			for (bb2 in 1:B) {
-				supwaldb <- supwaldfb.con(Zmatb, qtemp1b,
+				tryCatch(
+					{supwaldb <- supwaldfb.con(Zmatb, qtemp1b,
 					 qtemp2b, epcollect2, Wn2, covwaldrec, GridTh, ngrid, dimN)
-				waldrec[bb2] <- supwaldb
+				waldrec[bb2] <- supwaldb},
+    				error = function(e) structure(NA_real_, fail_msg = conditionMessage(e))
+  				)
 			}
 			bootsp <- sum(1*(waldrec > supwaldori))/B
 			resboots <- list(method="parametric bootstrap-based linearity test",B=B,p.val= bootsp)

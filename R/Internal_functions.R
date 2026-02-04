@@ -26,6 +26,71 @@
 
 ## ***************************************************************************************************
 
+matrix_inversion <- function(A,
+                          tol = 1e-8,      # soglia per pseudo-inversa via eigen / ginv
+                          ridge = 1e-8,    # lambda per inversa regolarizzata
+                          sym_tol = 1e-10, # tolleranza per considerare A simmetrica
+                          verbose = FALSE) {
+  stopifnot(is.matrix(A), nrow(A) == ncol(A))
+  storage.mode(A) <- "double"
+
+  logmsg <- function(...) if (isTRUE(verbose)) message(...)
+
+  # try method and return NULL if failure 
+  try_method <- function(name, expr) {
+    logmsg("Trying: ", name)
+    out <- tryCatch(expr, error = function(e) e)
+    if (inherits(out, "error")) {
+      logmsg("  -> failed: ", conditionMessage(out))
+      return(NULL)
+    }
+    logmsg("  -> OK")
+    out
+  }
+
+  n <- nrow(A)
+
+  # 1) solve()
+  out <- try_method("solve()", solve(A))
+  if (!is.null(out)) return(out)
+
+  # 2) MASS::ginv()
+  out <- try_method("MASS::ginv()", {
+    if (!requireNamespace("MASS", quietly = TRUE)) stop("Package MASS not installed")
+    MASS::ginv(A, tol = tol)
+  })
+  if (!is.null(out)) return(out)
+
+  # 3) pracma::pinv()
+  out <- try_method("pracma::pinv()", {
+    if (!requireNamespace("pracma", quietly = TRUE)) stop("Package pracma not installed")
+    pracma::pinv(A)
+  })
+  if (!is.null(out)) return(out)
+
+  # 4) chol2inv(chol(A))  
+  out <- try_method("chol2inv(chol(A))", {
+    R <- chol(A)          
+    chol2inv(R)
+  })
+  if (!is.null(out)) return(out)
+
+  # 5) pseudo-inversa via eigen 
+  out <- try_method("eigen pseudo-inverse (symmetric)", {
+    if (!isSymmetric(A, tol = sym_tol)) stop("A is not (numerically) symmetric")
+    B <- (A + t(A)) / 2
+    ev <- eigen(B, symmetric = TRUE)
+    thr <- tol * max(abs(ev$values))
+    invv <- ifelse(abs(ev$values) > thr, 1 / ev$values, 0)
+    ev$vectors %*% (invv * t(ev$vectors))
+  })
+  if (!is.null(out)) return(out)
+
+  stop("All inversion methods failed.")
+}
+
+## ***************************************************************************************************
+
 GridCon<-function(mat, trimrate, gridnum){
 	qvec<-as.vector(mat)
 	gridlower<-quantile(qvec,trimrate/2)
@@ -181,7 +246,7 @@ WCon<-function(Zmat, MomentMat,X.reg){
 			}
 		}
 	}
-	Wnout <- pinv(Wtemp1 + t(Wtemp1) + 2*Wtemp2)
+	Wnout <- matrix_inversion(Wtemp1 + t(Wtemp1) + 2*Wtemp2)
 	return(Wnout)
 }
 
@@ -204,7 +269,7 @@ GMMcal<-function(g1nbar,rth,Zmat, xtemp1, xtemp2, xtemp3, qtemp1, qtemp2, Wn){
 					xtemp3[,((kk3-1)*dimN+1):(kk3*dimN)]*indtemp3))/dimN
 	}
 	mattosolve<- (t(g2nbar)%*% Wn %*% g2nbar)
-	GMMest <- pinv(mattosolve)%*% (t(g2nbar)%*% Wn %*% g1nbar)	
+	GMMest <- matrix_inversion(mattosolve)%*% (t(g2nbar)%*% Wn %*% g1nbar)	
 	rownames(GMMest)<-c(paste("beta.X",seq(1,k1),sep=""),"delta.c",paste("delta.X",seq(1,k1),sep=""))
 	#
 	gnbar <- g1nbar - g2nbar%*%GMMest
@@ -226,7 +291,7 @@ GMMcal.res<-function(g1nbar,rth,Zmat, qtemp1, qtemp2, Wn){
 	g2nbar[, 1] <- rowSums(Zmat*(indtemp2 - indtemp3))/dimN
 	#
 	mattosolve<- (t(g2nbar)%*% Wn %*% g2nbar)
-	GMMest <- pinv(mattosolve)%*% (t(g2nbar)%*% Wn %*% g1nbar)	
+	GMMest <- matrix_inversion(mattosolve)%*% (t(g2nbar)%*% Wn %*% g1nbar)	
 	rownames(GMMest)<-c("delta.c")
 	#
 	gnbar <- g1nbar - g2nbar%*%GMMest
@@ -271,7 +336,7 @@ W2Con <- function(epcollect, Zmat){
 		gtemp2 <- gtemp2 + gihat
 	}
 	mattoinv1 <- (1/dimN)*gtemp1 - (1/(dimN^2))*(gtemp2%*%t(gtemp2))
-	Wn2 <- pinv(mattoinv1)
+	Wn2 <- matrix_inversion(mattoinv1)
 	return(Wn2)
 }
 
@@ -358,8 +423,8 @@ qtemp2b, MomentMat, GridTh,  ngrid, dimN){
 		selm <- matrix(0,nrow=dltlen, ncol=sizec) 
 		selm[, (sizec-dltlen+1):sizec] <- diag(dltlen)
 		# To select deltacovmat from the whole (Vs transpose times Vs)
-		covwald <- selm %*% pinv(t(Vs) %*% Vs) %*% t(selm)
-		waldb <-  dimN * t(dlthat) %*% pinv(covwald) %*% dlthat
+		covwald <- selm %*% matrix_inversion(t(Vs) %*% Vs) %*% t(selm)
+		waldb <-  dimN * t(dlthat) %*% matrix_inversion(covwald) %*% dlthat
 		waldvec[bb] <- waldb
 		covwaldrec[((bb-1)*dltlen+1): (bb*dltlen), ] <- covwald
 	}
@@ -420,7 +485,7 @@ supwaldfb <- function(Zmatb, xtemp1b, xtemp2b, xtemp3b, qtemp1b,qtemp2b, epcolle
 		dlthat <- GMMestb[(sizec-dltlen+1):(sizec)]
 	     #
 		covwald <- covwaldrec[((bb-1)*dltlen+1) : (bb*dltlen), ]
-		waldb <-  dimN %*% t(dlthat) %*% pinv(covwald) %*% dlthat
+		waldb <-  dimN %*% t(dlthat) %*% matrix_inversion(covwald) %*% dlthat
 		waldvec[bb] <- waldb
 	}
 	supwaldb <- max(waldvec)
@@ -465,7 +530,7 @@ qtemp2b, MomentMat, GridTh,  ngrid, dimN){
 		sizec <- ncol(Vs) # size of (Vs transpose * Vs)
 		dlthat <- GMMest2b[(sizec-dltlen+1) : sizec]
 		selm <- as.matrix(c(1,0), nrow=dltlen, ncol=sizec)
-		covwald <- selm %*% pinv(t(Vs) %*% Vs) %*% t(selm)
+		covwald <- selm %*% matrix_inversion(t(Vs) %*% Vs) %*% t(selm)
 		waldb <-   dimN * (dlthat^2) * (covwald[1,1]^(-1))
 		waldvec[bb] <- waldb
 		covwaldrec[((bb-1)*dltlen+1): (bb*dltlen), ] <- covwald

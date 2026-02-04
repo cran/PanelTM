@@ -257,7 +257,7 @@ ptm3 <- function(data., nameI, nameT, nameJ, nameY, nameTV=NULL, nameXendo=NULL,
 #    		estimation <- list(threshold=th, param=param, cov.=covmat, residuals.=residuals., test.lin=test.lin.res)
 #    	}
 #    	if(test.lin==FALSE){estimation <- list( threshold=th, param=param, cov.=covmat, residuals.=residuals.)}		
-    }#added a brace
+    }
     #
     out <- new("ptm3")
     out@threshold <- th;

@@ -1,6 +1,7 @@
 importFrom("methods", "new", "show")
 importFrom("stats", dnorm, rnorm, var, quantile, arima.sim, reshape, qnorm, runif, pnorm)
 importFrom("pracma", pinv)
+importFrom("MASS", ginv)
 
 export(cpoint)
 export(perfm)
@@ -9,3 +10,5 @@ export(ptm3)
 export(simptm)
 
 exportClasses(cpoint, perfm, ptm2, ptm3, simptm)
+
+

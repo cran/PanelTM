@@ -1,1 +1,2 @@
-
+1.2
+ - all inverse computations no longer rely on a direct call to pinv(); a unified and more robust inversion routine is now used, which sequentially attempts standard inversion (solve()), Moore–Penrose generalized inverse (MASS::ginv() / pracma::pinv()), Cholesky-based inversion, and eigenvalue-based pseudo-inversion for symmetric matrices, reducing failures in near-singular cases.
