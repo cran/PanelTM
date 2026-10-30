@@ -23,16 +23,35 @@ simptm(n, T., J=2, CP, gamma.=c(0,0),
 	\item{parAR}{vector of autoregressive parameter(s) (one for each \eqn{j}) to generate a (exogenous) time-varying regressor.}
 	\item{seedstart}{number of the initial seed.} 
 } 
-\details{ 
-\code{simptm} generates \code{B} datasets from a two- or three-way panel threshold regression model with \code{n} statistical units, \code{T.} times of observations and \code{J} values/levels for the third dimension. The data generating process is constituted by two regimes with a change point at time \code{CP} and a threshold value \eqn{y_{t-1} = \gamma_j} for each value/level \eqn{j} of the third way. 
-The two regimes are defined by the constant parameters \code{phi_c} or \code{phi_c} and parameters for the time-varying regressor \code{phi_X}. In the current version of the package, it is thus possible to generate data from a model without regressors or with a time-varying regressor. The (exogenous) time-varying regressor is assumed to be distributed as an autoregressive stochastic process with the \eqn{j}-th parameter of the \code{parAR}. The error component is generated from a Gaussian white noise and can be rescaled through the constant sigmau. 
-} 
+\details{\code{simptm} generates \code{B} datasets from a three-way panel threshold regression model.
 
+Let \eqn{i = 1,\ldots,n} index statistical units, \eqn{t = 1,\ldots,T} index time periods, and \eqn{j = 1,\ldots,J} index levels of the third dimension. The data-generating process is
+
+\deqn{
+y_{ijt} =
+\begin{cases}
+\phi_{1j}^{(1)} + \phi_{1j}^{(2)} x_{ijt} + \sigma \varepsilon_{ijt},
+& \text{if } y_{ij(t-1)} \leq \gamma_j,\quad t \leq CP_j,\\
+\phi_{2j}^{(1)} + \phi_{2j}^{(2)} x_{ijt} + \sigma \varepsilon_{ijt},
+& \text{if } y_{ij(t-1)} > \gamma_j,\quad t > CP_j.
+\end{cases}
+}
+
+where \eqn{CP_{j}} is the change point, \eqn{\phi_{1j}^{(1)}} and \eqn{\phi_{2j}^{(1)}} are the intercepts in the two regimes, and \eqn{\phi_{1j}^{(2)}} and \eqn{\phi_{2j}^{(2)}} are the corresponding slope coefficients. The regime switch is determined by the lagged dependent variable, with threshold value \eqn{\gamma_{j}}.
+The variable \eqn{x_{ijt}} denotes the exogenous regressor for unit \eqn{i}, level \eqn{j}, and time \eqn{t}. When included, it follows an autoregressive process of order one:
+\deqn{
+x_{ijt} = \rho_j x_{ij(t-1)} + \eta_{ijt},
+}
+
+where \eqn{\rho_j} is the autoregressive coefficient for level \eqn{j}, specified through \code{parAR}, and \eqn{\eta_{ijt}} is a Gaussian white noise process. The errors \eqn{\varepsilon_{ijt}} are also generated from Gaussian white noise, and \eqn{\sigma} is a user-defined scaling constant specified through \code{sigmau}.
+
+If \eqn{J = 1}, the function simulates a two-way panel threshold model.
+}
 \value{
 An object of S4 class "simptm", which is a list of simulated data matrices.
 }
 \references{ 
-Di Lascio, F.M.L. and Perazzini, S. (202x) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. WP BEMPS <https://repec.unibz.it/bemps104.pdf>.
+Di Lascio, F.M.L. and Perazzini, S. (2026) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. Stat Methods Appl 35, 849-867.
 
 Di Lascio, F.M.L. and Perazzini, S. (2022) Change point detection in fruit bioimpedance using a three-way panel model. Book of short papers - SIS2022, p.1184-1189, Eds. A. Balzanella, M. Bini, C. Cavicchia, R. Verde. Pearson. ISBN: 978-88-9193-231-0. 
 

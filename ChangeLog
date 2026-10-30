@@ -1,2 +1,5 @@
-1.2
+1.1
  - all inverse computations no longer rely on a direct call to pinv(); a unified and more robust inversion routine is now used, which sequentially attempts standard inversion (solve()), Moore–Penrose generalized inverse (MASS::ginv() / pracma::pinv()), Cholesky-based inversion, and eigenvalue-based pseudo-inversion for symmetric matrices, reducing failures in near-singular cases.
+1.2
+ - documentation for ptm2, ptm3, simptm, and cpoint have been expanded;
+ - show() method has been added for objects of classes ptm2 and ptm3.

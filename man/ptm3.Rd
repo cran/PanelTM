@@ -26,9 +26,22 @@ ptm3(data., nameI, nameT, nameJ, nameY, nameTV=NULL, nameXendo=NULL,
   \item{test.lin}{if \code{TRUE} (default), the linearity test is performed; if \code{FALSE}, not.}
   \item{B}{if \code{test.lin=TRUE}, the number of bootstrap iterations for the linearity test.} 
 }
-\details{
-\code{ptm3} performs the first-difference 2-step GMM estimation of the three-way panel threshold regression model in Di Lascio and Perazzini (202X).
+
+\details{\code{ptm3} estimates a three-way dynamic panel threshold regression model using the first-difference instrumental-variable generalized method of moments (FD-IV-GMM) estimator in Di Lascio and Perazzini (2026).
+
+Let \eqn{i = 1,\ldots,n} index individuals, \eqn{t = 1,\ldots,T} index time periods, and \eqn{j = 1,\ldots,J} index levels of the third dimension. The model is \deqn{y_{ijt} = (1,x_{ijt}')\phi_{1j} I(q_{ijt} \leq \gamma_j) + (1,x_{ijt}')\phi_{2j} I(q_{ijt} > \gamma_j) + \varepsilon_{ijt}, } where \eqn{y_{ijt}} is the dependent variable, \eqn{x_{ijt}} is a vector of time-varying regressors, \eqn{q_{ijt}} is the threshold variable, \eqn{\gamma_{j}} is the threshold parameter specific to level \eqn{j}, and \eqn{I(\cdot)} is the indicator function. The parameter vectors \eqn{\phi_{1j}} and \eqn{\phi_{2j}} contain the intercept and slope coefficients in the lower and upper regimes, respectively. The error term is \deqn{ \varepsilon_{ijt} = \mu_{i} + \lambda_{j} + \nu_{ijt}, } where \eqn{\mu_{i}} is an unobserved individual-specific effect,  \eqn{\lambda_{j}} is an unobserved effect associated with the third dimension, and \eqn{\nu_{ijt}} is an idiosyncratic error.
+
+The model is estimated separately for each level \eqn{j}, allowing the regression coefficients and threshold parameter to vary across levels of the third dimension. The threshold variable can be specified by the user. If it is not provided, the first lag of the dependent variable is used. Regressors can be specified as exogenous or endogenous. If no regressors are supplied, the model includes an intercept only. Lagged values of the dependent variable and regressors are also used as instruments and additional instruments can be supplied through the \code{nameIV} argument.
+
+Once fixed \eqn{j}, the steps to estimate the model for the specific level \eqn{j} coincide with the ones described in the Details section of the \code{\link{ptm2}} documentation.
+
+The regressors in the output are always ordered with the exogenous variables first, followed by the endogenous variables. Within each group, the variables retain the same order as specified by the user in the input arguments. Therefore, the estimated coefficients and their associated p-values should be interpreted according to this ordering.
+
+When \code{test.lin = TRUE}, the function also performs a bootstrap-based test for the presence of a threshold effect separately for each level \eqn{j}. The null hypothesis is that the regime-specific coefficient difference is zero, \eqn{H0: \delta_j = 0} against \eqn{H1: \delta_j \neq 0}. The test uses a supremum Wald statistic over the threshold grid, with the number of bootstrap replications controlled by \code{B}.
+
+If \eqn{J = 1}, the function estimates a two-way panel threshold model as implemented in \code{\link{ptm2}}.
 }
+
 \value{An object of S4 class "ptm3", which is a list with the following elements:
 	\item{threshold}{the \code{matrix} of the estimated thresholds and the associated p-values.}
 	\item{param}{the \code{matrix} of the estimated first-differenced parameters of the model and the associated p-values.}
@@ -37,8 +50,9 @@ ptm3(data., nameI, nameT, nameJ, nameY, nameTV=NULL, nameXendo=NULL,
 	\item{test.lin.}{the \code{list} of the linearity test results containing: the name of the test; the number of bootstrap iterations carried out; the p-value of the test 
 per each value of the third way.}
 }
+
 \references{
-Di Lascio, F.M.L. and Perazzini, S. (202x) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. WP BEMPS <https://repec.unibz.it/bemps104.pdf>.
+Di Lascio, F.M.L. and Perazzini, S. (2026) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. Stat Methods Appl 35, 849-867.
 
 Di Lascio, F.M.L. and Perazzini, S. (2022) Change point detection in fruit bioimpedance using a three-way panel model. Book of short papers - SIS2022, p.1184-1189, Eds. A. Balzanella, M. Bini, C. Cavicchia, R. Verde. Pearson. ISBN: 978-88-9193-231-0.
 }
@@ -73,9 +87,13 @@ data(banana)
 # y_{it}=(phi1_{jc}+phi1_{jX}*x_{ijt})1(y_{ijt-1}<=gamma_j) + 
 # (phi2_{jc}+phi2_{jX}*x_{ijt})1(y_{ijt-1}>gamma_j)
 
-ptm3(data.=banana, nameI="i", nameT="t", nameJ="j",nameY="bioimpedance", 
+p3 <- ptm3(data.=banana, nameI="i", nameT="t", nameJ="j",nameY="bioimpedance", 
     nameTV=NULL, nameXendo="weight", nameXexo=NULL, nameIV=NULL,
     trimrate=0.4, ngrid=100, h0=1.5, Iweight=FALSE, test.lin=FALSE)
+    
+# Show main output 
+show(p3)
+
 }
 
 

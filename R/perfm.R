@@ -1,4 +1,4 @@
-### ptm
+### PanelTM
 ### TWO- AND THREE-WAY PANEL THRESHOLD MODEL FOR CHANGE POINT DETECTION
 ##
 ##  The authors of this software are
@@ -26,57 +26,58 @@
 
 ## ***************************************************************************************************
 setClass("perfm",
-     	  representation(trueval="numeric",
-			rb="numeric",
-			nrb="numeric",
-			rrmse="numeric",
-			rmse="numeric"
-                        ),
-         prototype = list(trueval=numeric(),
-				rb = numeric(),
-				nrb = numeric(),
-				rrmse = numeric(),
-				rmse = numeric()
-                        )
-         )
+  representation(
+    trueval = "numeric",
+    rb = "numeric",
+    nrb = "numeric",
+    rrmse = "numeric",
+    rmse = "numeric"
+  ),
+  prototype = list(
+    trueval = numeric(),
+    rb = numeric(),
+    nrb = numeric(),
+    rrmse = numeric(),
+    rmse = numeric()
+  )
+)
 ## ***************************************************************************************************
-perfm <- function(truepar,estpar){
-	# truepar = value of the true parameter
-	# estpar = vector of estimated parameters
-    #
-	# Check
-	if(length(truepar)!=1){
-		stop("truepar must be a unique value")
-	}
-	if(!is.numeric(truepar)){
-		stop("truepar must be numeric")
-	}
-	if(!is.vector(estpar)){
-		stop("estpar must be a vector of length >=1")
-	}
-	if(!is.numeric(estpar)){
-		stop("estpar must be numeric")
-	}
-	# REMOVE MISSING ESTIMATES
-	ep <- estpar[which(!is.na(estpar))]
-	# TRUE VALUE
-	trueval <- truepar
-	# RELATIVE BIAS
-	rb <- mean(((ep - truepar)/truepar))
-	# BIAS 
-	nrb <- mean((ep - truepar))
-	# RRMSE
-	rrmse <- sqrt(mean(((ep - truepar)/truepar)^2 ))
-	# RMSE
-	rmse <- sqrt(mean((ep - truepar)^2 ))
-	# Show results
-    out <- new("perfm")
-    out@trueval <- trueval;
-    out@rb <- rb;
-    out@nrb <- nrb;
-    out@rrmse <- rrmse;
-    out@rmse <- rmse;
-    #
-    return(out);
+perfm <- function(truepar, estpar) {
+  # truepar = value of the true parameter
+  # estpar = vector of estimated parameters
+  #
+  # Check
+  if (length(truepar) != 1) {
+    stop("truepar must be a unique value")
+  }
+  if (!is.numeric(truepar)) {
+    stop("truepar must be numeric")
+  }
+  if (!is.vector(estpar)) {
+    stop("estpar must be a vector of length >=1")
+  }
+  if (!is.numeric(estpar)) {
+    stop("estpar must be numeric")
+  }
+  # REMOVE MISSING ESTIMATES
+  ep <- estpar[which(!is.na(estpar))]
+  # TRUE VALUE
+  trueval <- truepar
+  # RELATIVE BIAS
+  rb <- mean(((ep - truepar) / truepar))
+  # BIAS
+  nrb <- mean((ep - truepar))
+  # RRMSE
+  rrmse <- sqrt(mean(((ep - truepar) / truepar)^2))
+  # RMSE
+  rmse <- sqrt(mean((ep - truepar)^2))
+  # Show results
+  out <- new("perfm")
+  out@trueval <- trueval
+  out@rb <- rb
+  out@nrb <- nrb
+  out@rrmse <- rrmse
+  out@rmse <- rmse
+  #
+  return(out)
 }
-

@@ -18,15 +18,26 @@ cpoint(data., nameI=NA, nameT=NA, nameJ=NA, nameY=NA, thresholds)
 		the vector should contain one threshold value per each value of j, i.e. \eqn{\gamma_j}.}
 }
 \details{
-\code{cpoint} computes the change point on the dependent variable (\eqn{Y}) for each statistical unit i given the time series of \eqn{Y} and the estimated threshold value \eqn{\gamma_{ij}}.
-If the observed value \eqn{Y} is greater (lower) than the estimated threshold parameter, \eqn{t=4} belongs to the upper (lower) regime, 
-and the change point is identified as the time \eqn{t} after which the longest sequence of days in the lower (upper) regime is observed.
+\code{cpoint} identifies the change point in a variable time series for each statistical unit \eqn{(i,j)}, given the observed values of \eqn{Y} and the estimated threshold parameter \eqn{\widehat{\gamma}_j}. The regime is determined by comparing the threshold variable \eqn{q_{ijt}} with the estimated threshold \eqn{\widehat{\gamma}_j}: observations satisfying \eqn{q_{ijt}\leq\widehat{\gamma}_j} belong to the lower regime, whereas observations satisfying \eqn{q_{ijt}>\widehat{\gamma}_j} belong to the upper regime.
+Following the identification criterion in Di Lascio and Perazzini (2026), the change point depends on the regime occurring at the beginning of the time series. When the series starts in the lower regime, the change point is associated with the transition to the upper regime, identified by
+
+\deqn{
+\mathrm{CP}_{ij} =
+\min\{t \in \{1,\ldots,T\}: q_{ijt} > \widehat{\gamma}_j\}.
 }
+
+Conversely, when the series starts in the upper regime, the change point is associated with the transition to the lower regime, identified by
+
+\deqn{
+\mathrm{CP}_{ij} =
+\min\{t \in \{1,\ldots,T\}: q_{ijt} < \widehat{\gamma}_j\}.
+}
+Since a time series may cross the estimated threshold more than once, \code{cpoint} identifies the beginning of the longest uninterrupted sequence of observations in the relevant regime, according to the initial regime of the series. If a unique change point cannot be identified the function returns \code{NA}.}
 \value{
 An object of S4 class "cpoint", which is a \code{matrix} reporting the change point per each statistical unit \eqn{i} and each \eqn{j}.
 }
 \references{
-Di Lascio, F.M.L. and Perazzini, S. (202x) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. WP BEMPS <https://repec.unibz.it/bemps104.pdf>.
+Di Lascio, F.M.L. and Perazzini, S. (2026) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. Stat Methods Appl 35, 849-867.
 
 Di Lascio, F.M.L. and Perazzini, S. (2022) Change point detection in fruit bioimpedance using a three-way panel model. Book of short papers - SIS2022, p.1184-1189, Eds. A. Balzanella, M. Bini, C. Cavicchia, R. Verde. Pearson. ISBN: 978-88-9193-231-0.
 }

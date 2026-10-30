@@ -17,7 +17,7 @@ Computes the relative bias, the bias, the root mean squared error, and the relat
     An object of S4 class "perfm", which is a \code{list} with the following values: the true value of the parameters, the relative bias, the bias, the root relative mean squared error, the relative root relative means squared error.
 }
 \references{
-Di Lascio, F.M.L. and Perazzini, S. (202x) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. Submitted.
+Di Lascio, F.M.L. and Perazzini, S. (2026) A three-way dynamic panel threshold regression model for change point detection in bioimpedance data. Stat Methods Appl 35, 849-867.
 
 Di Lascio, F.M.L. and Perazzini, S. (2022) Change point detection in fruit bioimpedance using a three-way panel model. Book of short papers - SIS2022, p.1184-1189, Eds. A. Balzanella, M. Bini, C. Cavicchia, R. Verde. Pearson. ISBN: 978-88-9193-231-0.
 }
